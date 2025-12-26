@@ -2,3 +2,10 @@ node_modules/
 .cache/
 public
 src/gatsby-types.d.ts
+
+# Local Netlify folder
+.netlify
+deno.lock
+_redirects
+
+static/z3-built.*
