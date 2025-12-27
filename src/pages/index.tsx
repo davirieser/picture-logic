@@ -1,6 +1,7 @@
 import * as React from "react";
 import type { HeadFC, PageProps } from "gatsby";
 import { init } from "z3-solver";
+import { testNonogram } from "../lib/solver";
 
 const pageStyles = {
 	color: "#232129",
@@ -9,18 +10,18 @@ const pageStyles = {
 };
 
 const runX = async () => {
-	console.log("Clicked");
-
 	const { Context } = await init();
-	const { Solver, Int, And } = Context('main');
+	const ctx = Context('main');
 
-	const x = Int.const('x');
+	const start = performance.now();
 
-	const solver = new Solver();
-	solver.add(And(x.ge(0), x.le(9)));
-	console.log(await solver.check());
+	const result = await testNonogram.solve(ctx);
 
-	console.log("After");
+	const end = performance.now();
+	const elapsed = end - start;
+
+	console.log(result);
+	console.log(`Elapsed time: ${elapsed.toFixed(2)}ms`);
 };
 
 export default ((p) => {
