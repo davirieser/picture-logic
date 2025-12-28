@@ -1,35 +1,58 @@
 import * as React from "react";
 import type { HeadFC, PageProps } from "gatsby";
 import { init } from "z3-solver";
-import { testNonogram } from "../lib/solver";
+import { Nonogram } from "../lib/solver";
+import NonogramComponent from "../components/Nonogram";
+import { mapXY } from "../lib/util";
 
-const pageStyles = {
-	color: "#232129",
-	padding: 96,
-	fontFamily: "-apple-system, Roboto, sans-serif, serif",
-};
+const IndexPage = ((p: PageProps) => {
+	const [nonogram, setNonogram] = React.useState(
+		new Nonogram([[1,2,3], [1,2], [3], []], [[1,2,3], [1,2], [2,3]])
+	);
+	const [cells, setCells] = React.useState(() => mapXY(
+		nonogram.right.length, 
+		nonogram.bottom.length, 
+		_ => false
+	));
 
-const runX = async () => {
-	const { Context } = await init();
-	const ctx = Context('main');
+	const runX = async () => {
+		const { Context } = await init();
+		const ctx = Context('main');
 
-	const start = performance.now();
+		const start = performance.now();
 
-	const result = await testNonogram.solve(ctx);
+		const result = await nonogram.solve(ctx);
+		if (result !== 'unsat')
+		{
+			console.log(result.cells);
+			setCells(result.cells);
+		}
 
-	const end = performance.now();
-	const elapsed = end - start;
+		const end = performance.now();
+		const elapsed = end - start;
 
-	console.log(result);
-	console.log(`Elapsed time: ${elapsed.toFixed(2)}ms`);
-};
+		console.log(`Elapsed time: ${elapsed.toFixed(2)}ms`);
+	};
 
-export default ((p) => {
+	const cellClicked = async (x: number, y: number) => {
+		setCells((cells) => mapXY(
+			nonogram.right.length, 
+			nonogram.bottom.length, 
+			(_x, _y) => cells[_x][_y] = cells[_x][_y] !== (x === _x && y === _y)
+		));
+	}
+
 	return (
-		<main style={pageStyles}>
+		<main>
 			<button onClick={runX}>Test</button>
+			<NonogramComponent 
+				input={nonogram} 
+				filled={{ cells }} 
+				cellClicked={cellClicked} />
 		</main>
 	);
-}) as React.FC<PageProps>;
+});
+
+export default IndexPage;
 
 export const Head: HeadFC = () => <title>Home Page</title>;
