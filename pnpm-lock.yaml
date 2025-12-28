@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      z3-solver:
+        specifier: ^4.15.4
+        version: 4.15.4
     devDependencies:
       '@eslint/compat':
         specifier: ^1.4.0
@@ -710,6 +714,9 @@ packages:
     resolution: {integrity: sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==}
     engines: {node: '>=12'}
 
+  async-mutex@0.3.2:
+    resolution: {integrity: sha512-HuTK7E7MT7jZEh1P9GtRW9+aTWiDWWi9InbZ5hjxrnRa39KS4BW04+xLBhYNS2aXhHUIKZSw3gj4Pn1pj+qGAA==}
+
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
     engines: {node: '>= 0.4'}
@@ -1384,6 +1391,9 @@ packages:
     peerDependencies:
       typescript: '>=4.8.4'
 
+  tslib@2.8.1:
+    resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
+
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
     engines: {node: '>= 0.8.0'}
@@ -1539,6 +1549,10 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  z3-solver@4.15.4:
+    resolution: {integrity: sha512-Tcv55+k5VsPQEX7R3gIu5ieUeLp9fP1r+8+c85dQORj/v4Fy+LvOzVzZZtg4mJjUgfIhGCg6ZfAeiUiUxDPRVg==}
+    engines: {node: '>=16'}
 
   zimmerframe@1.1.4:
     resolution: {integrity: sha512-B58NGBEoc8Y9MWWCQGl/gq9xBCe4IiKM0a2x7GZdQKOW5Exr8S1W24J6OgM1njK8xCRGvAJIL/MxXHf6SkmQKQ==}
@@ -2090,6 +2104,10 @@ snapshots:
   aria-query@5.3.2: {}
 
   assertion-error@2.0.1: {}
+
+  async-mutex@0.3.2:
+    dependencies:
+      tslib: 2.8.1
 
   axobject-query@4.1.0: {}
 
@@ -2680,6 +2698,8 @@ snapshots:
     dependencies:
       typescript: 5.9.3
 
+  tslib@2.8.1: {}
+
   type-check@0.4.0:
     dependencies:
       prelude-ls: 1.2.1
@@ -2789,5 +2809,9 @@ snapshots:
   yaml@1.10.2: {}
 
   yocto-queue@0.1.0: {}
+
+  z3-solver@4.15.4:
+    dependencies:
+      async-mutex: 0.3.2
 
   zimmerframe@1.1.4: {}
