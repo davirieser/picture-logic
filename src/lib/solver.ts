@@ -19,23 +19,23 @@ export interface SolvedNonogram {
 	cells: boolean[][],
 }
 export class Nonogram implements Solvable<SolvedNonogram> {
-	bottom: number[][] = [];
-	right: number[][] = [];
+	horizontal: number[][] = [];
+	vertical: number[][] = [];
 
 	constructor(top: number[][], left: number[][]) {
-		this.bottom = top;
-		this.right = left;
+		this.horizontal = top;
+		this.vertical = left;
 	}
 
 	async solve<Name extends string>(ctx: Context<Name>) {
-		const { Bool, And, Or, solve, isModel } = ctx;
+		const { Bool, Or, solve, isModel } = ctx;
 
 		const getName = (x: number, y: number) => `x${x}y${y}`;
 
-		const width = this.right.length, height = this.bottom.length;
+		const width = this.horizontal.length, height = this.vertical.length;
 		const variables = mapXY(width, height, (x, y) => Bool.const(getName(x, y)));
 
-		const result = await solve(And(...variables.flatMap(_ => _)));
+		const result = await solve(Or(...variables.flatMap(_ => _)));
 		if (isModel(result)) {
 			const getValue = (x: number, y: number) => 
 				result.get(variables[x][y]).sexpr() === 'true';
