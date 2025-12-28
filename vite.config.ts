@@ -20,10 +20,19 @@ export default defineConfig({
 			// Plugin code is from https://github.com/chaosprint/vite-plugin-cross-origin-isolation
 			name: "configure-response-headers",
 			configureServer: (server) => {
-				server.middlewares.use((_req, res, next) => {
-					res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
-					res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
-					next();
+				server.middlewares.use((req, res, next) => {
+					switch (req.url) {
+						case "/z3-built.wasm":
+						case "/z3-built.js":
+						case "/":
+							res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+							res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+							next();
+							break;
+						default:
+							next();
+							break;
+					}
 				});
 			},
 		},
