@@ -3,9 +3,34 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
+	plugins: [
+		// https://github.com/Z3Prover/z3/issues/6768
+		viteStaticCopy({
+			targets: [
+				{
+					src: 'node_modules/z3-solver/build/z3-built.*',
+					dest: ''
+				}
+			],
+		}),
+		{
+			// Plugin code is from https://github.com/chaosprint/vite-plugin-cross-origin-isolation
+			name: "configure-response-headers",
+			configureServer: (server) => {
+				server.middlewares.use((_req, res, next) => {
+					res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+					res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+					next();
+				});
+			},
+		},
+		tailwindcss(), 
+		sveltekit(), 
+		devtoolsJson()
+	],
 
 	test: {
 		expect: { requireAssertions: true },
