@@ -2,48 +2,56 @@
 	import { Nonogram } from '$lib/solver';
 	import NC from '$lib/components/Nonogram.svelte';
 	import { init } from 'z3-solver';
-	import { mapXY } from '$lib/util';
+	import { getPalleteClasses, mapXY } from '$lib/util';
 	import Timer from '$lib/components/Timer.svelte';
+	import { Button } from 'bits-ui';
+	import { PALETTE } from '$lib/storable';
 
 	const nonogram = $state(
 		new Nonogram(
-			[[1, 2, 3, 4], [1, 2], [3], []],
-			[
-				[1, 2, 3],
-				[1, 2],
-				[2, 3]
-			]
+			[[], [], [5], [1], [], []],
+			[[1], [1], [1], [1], [1], [1]]
 		)
 	);
 	let filled = $state({
 		cells: mapXY(nonogram.horizontal.length, nonogram.vertical.length, (_) => false)
 	});
 
+	let solving = $state(false);
+	// TODO: Put this into onMount and store the solution to check if user completely solved.
 	const solveNonogram = async () => {
-		const { Context } = await init();
-		const ctx = Context('main');
+		solving = true;
 
-		const start = performance.now();
+		try {
+			const { Context } = await init();
+			const ctx = Context('main');
 
-		const result = await nonogram.solve(ctx);
-		if (result !== 'unsat') {
-			filled = result;
-			solved = true;
-			timer?.stopTimer();
-		} else {
-			// TODO: Show error message
+			const start = performance.now();
+
+			let result: Awaited<ReturnType<typeof nonogram.solve>> = 'unsat';
+			result = await nonogram.solve(ctx);
+
+			const end = performance.now();
+			const elapsed = end - start;
+
+			if (result !== 'unsat') {
+				filled = result;
+				solved = true;
+			} else {
+				// TODO: Show error message
+				alert("Nonogram is not solvable!");
+			}
 		}
-
-		const end = performance.now();
-		const elapsed = end - start;
-
-		console.log(`Elapsed time: ${elapsed.toFixed(2)}ms`);
+		catch {
+			// TODO: Show error message?
+		}
+		solving = false;
 	};
 
 	let firstClick = $state(true);
 	let solved = $state(false);
 	const cellClicked = async (x: number, y: number) => {
-		if (solved) return;
+		if (solved || solving) return;
 
 		filled.cells[x][y] = !filled.cells[x][y];
 		// TODO: Check if puzzle is solved and stop timer if so.
@@ -54,17 +62,39 @@
 	};
 	let timer: Timer | undefined = undefined;
 	let timerStarted = $state(false);
+	const disabled = $derived(solved || solving);
 </script>
 
-<Timer bind:this={timer} bind:started={timerStarted} disabled={solved} />
+<Timer bind:this={timer} bind:started={timerStarted} {disabled} />
 
-<button onclick={solveNonogram}>Solve</button>
+<Button.Root
+	{disabled}
+	class={{
+		border: true,
+		rounded: true,
+		'shadow-mini': true,
+		'inline-flex': true,
+		'items-center': true,
+		'gap-1': true,
+		'p-1': true,
+		...getPalleteClasses($PALETTE, 'bg', 100),
+		...getPalleteClasses($PALETTE, 'bg', 200, undefined, !disabled, "hover"),
+		"opacity-75": disabled,
+	}}
+	onclick={solveNonogram}
+>
+	{#if solving}
+		<span class="icon-[solar--refresh-line-duotone] size-3 animate-spin"></span>
+	{/if}
+	<span
+		class={{
+			'inline-block': true,
+			'text-sm': true
+		}}
+	>
+		{solving ? 'Solving' : 'Solve'}
+	</span>
+</Button.Root>
 <br />
 
-<NC {nonogram} {filled} {cellClicked} />
-
-<style>
-	button {
-		font-size: 2em;
-	}
-</style>
+<NC {nonogram} {filled} {cellClicked} {disabled} />

@@ -16,6 +16,8 @@ import { PALETTES, type Palette } from './util';
 export function localStorageWritable<T>(
    key: string,
    initial: T,
+   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   validityCheck: (item: T) => boolean = _ => true,
    { serialize = JSON.stringify, deserialize = JSON.parse }: { serialize?: (arg0: T) => string; deserialize?: (arg0: string) => T; } = {}
 ): import("svelte/store").Writable<T> {
 	let currentValue = initial;
@@ -32,7 +34,10 @@ export function localStorageWritable<T>(
 		if (localValue === null) return initial;
 
 		try {
-			return deserialize(localValue);
+			const deserialized = deserialize(localValue);
+			if (!validityCheck(deserialized))
+				return initial;
+			return deserialized;
 		} catch (error) {
 			console.error(
 				`localStorage's value for \`${key}\` (\`${localValue}\`) could not be deserialized with ${deserialize} because of ${error}, so the initial value \`${initial}\` will be used instead`
@@ -64,6 +69,7 @@ export function localStorageWritable<T>(
 	});
 
 	const set = (value: T) => {
+		value = validityCheck(value) ? value : initial;
 		syncCurrentValue(setStore, value);
 
 		try {
@@ -91,13 +97,17 @@ export function localStorageWritable<T>(
 };
 
 export const THEME = localStorageWritable("Theme", false);
+
 const DEFAULT_PALETTE : Palette = "stone";
-export const PALETTE = localStorageWritable<Palette>("Palette", DEFAULT_PALETTE, {
-	serialize: _ => _,
-	deserialize: v => {
-		console.log(v);
-		if ((PALETTES as unknown as string[]).includes(v))
-			return v as Palette;
-		return DEFAULT_PALETTE;
-	}
-});
+export const PALETTE = localStorageWritable<Palette>(
+	"Palette", 
+	DEFAULT_PALETTE, 
+	v => (PALETTES as unknown as string[]).includes(v)
+);
+
+const DEFAULT_ENHANCED_BORDER_SPACING = 5;
+export const ENHANCED_BORDER_SPACING = localStorageWritable(
+	"EnhancedBorderSpacing", 
+	DEFAULT_ENHANCED_BORDER_SPACING,
+	n => n > 0
+); 

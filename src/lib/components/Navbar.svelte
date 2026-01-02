@@ -2,15 +2,61 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import { PALETTE, THEME } from '$lib/storable';
 	import { getPalleteClasses } from '$lib/util';
+	import { NavigationMenu } from 'bits-ui';
 </script>
 
-<nav
+<NavigationMenu.Root
 	class={{
 		relative: true,
 		'border-b': true,
+		flex: true,
+		'justify-between': true,
+		'p-1': true,
 		...getPalleteClasses($PALETTE, 'bg', 100),
 		...getPalleteClasses($PALETTE, 'border', 500)
 	}}
+>
+	<NavigationMenu.List class={{}}>
+		<NavigationMenu.Item>
+			<NavigationMenu.Link href="/">
+				<img src={favicon} class="h-6 w-auto" alt="Nonogram App Icon" />
+			</NavigationMenu.Link>
+		</NavigationMenu.Item>
+	</NavigationMenu.List>
+	<NavigationMenu.List
+		class={{
+			group: true,
+			flex: true,
+			'list-none': true
+		}}
+	>
+		<NavigationMenu.Item class="h-6 me-2">
+			<NavigationMenu.Link
+				href="/settings"
+				class={{
+					'icon-[solar--settings-bold]': true,
+					'h-6': true
+				}}
+			/>
+		</NavigationMenu.Item>
+		<NavigationMenu.Item class="h-6">
+			<NavigationMenu.Link
+				onclick={() => ($THEME = !$THEME)}
+				class={{
+					'icon-[solar--moon-line-duotone]': $THEME,
+					'icon-[solar--sun-2-bold]': !$THEME,
+					'h-6': true
+				}}
+			/>
+		</NavigationMenu.Item>
+		<NavigationMenu.Indicator />
+	</NavigationMenu.List>
+
+	<NavigationMenu.Viewport />
+</NavigationMenu.Root>
+<!--
+<nav
+	
 >
 	<div class="mx-auto max-w-7xl px-2">
 		<div class="relative flex h-10 items-center justify-between">
@@ -39,16 +85,8 @@
 						class="rounded-md bg-gray-950/50 px-2 py-1 text-sm font-medium text-white">Settings</a
 					>
 				</div>
-				<div class="flex space-x-4">
-                    <button onclick={() => ($THEME = !$THEME)} title="Dark mode" class="px-2 py-1">
-                        {#if $THEME}
-                            <span class="icon-[solar--moon-line-duotone]"></span>
-                        {:else}
-                            <span class="icon-[solar--sun-2-bold]"></span>
-                        {/if}
-                    </button>
-				</div>
 			</div>
 		</div>
 	</div>
 </nav>
+-->

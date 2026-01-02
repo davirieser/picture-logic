@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { PALETTE } from "$lib/storable";
+	import { getPalleteClasses } from "$lib/util";
+
 	const STOPPED_TIMER_STATE = 0,
 		STARTED_TIMER_STATE = 1,
 		PAUSED_TIMER_STATE = 2;
@@ -55,7 +58,12 @@
 
 		timer = { state: PAUSED_TIMER_STATE, elapsed: timer.elapsed };
 	}
+    export function setTime(timeMs: number) 
+    {
+        timer = { ...timer, elapsed: timeMs };
+    }
 
+    const enabled = $derived(!disabled);
     // TODO: Can i do this using $derived?
     $effect(() => { started = timer.state === STARTED_TIMER_STATE; });
 
@@ -69,26 +77,29 @@
     });
 </script>
 
-<div class={{ 
-    border: true, 
-    "rounded": true, 
-    "inline-flex": true, 
-    "items-center": true, 
-    "gap-1": true, 
-    "p-1": true,
-    ...classes
-}}>
-    <button class={{
-            "icon-[solar--stopwatch-pause-bold]": started,
-            "icon-[solar--stopwatch-play-bold]": !started,
-        }} 
-        {disabled}
-        onclick={timerButtonCallback} 
-        title="Start/Stop/Pause timer"></button>
+<button {disabled} 
+    class={{ 
+        border: true, 
+        "rounded": true, 
+        "inline-flex": true, 
+        "items-center": true, 
+        "gap-1": true, 
+        "text-sm": true,
+        "p-1": true,
+        ...getPalleteClasses($PALETTE, "bg", 100),
+        ...getPalleteClasses($PALETTE, "bg", 200, undefined, enabled, "hover"),
+        "opacity-75": disabled,
+        ...classes,
+    }}
+    onclick={timerButtonCallback}
+>
+    <span class={{
+        "icon-[solar--stopwatch-pause-bold]": started,
+        "icon-[solar--stopwatch-play-bold]": !started,
+    }}></span>
     <span class={{ 
         "inline-block": true, 
-        "text-sm": true 
     }}>
-        Elapsed: {timer.elapsed.toFixed(3)}ms
+        Elapsed: {(timer.elapsed / 1000).toFixed(3)}s
     </span>
-</div>
+</button>

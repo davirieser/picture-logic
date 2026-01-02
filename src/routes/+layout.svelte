@@ -25,5 +25,7 @@
 >
 	<Navbar />
 
-	{@render children()}
+	<div class="m-5">
+		{@render children()}
+	</div>
 </div>
