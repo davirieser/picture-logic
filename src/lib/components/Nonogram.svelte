@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import type { Nonogram, SolvedNonogram } from '$lib/solver';
 	import { ENHANCED_BORDER_SPACING, PALETTE } from '$lib/storable';
 	import { getPalleteClasses } from '$lib/util';
@@ -24,6 +25,52 @@
 
 			if (cellClicked && !disabled) await cellClicked(x, y);
 		};
+	};
+	const currentTouches : Record<number, HTMLElement | undefined> = $state({});
+	const touchHandler = (event: TouchEvent) => {
+		if (!browser || event.touches.length !== 1)
+			return;
+
+		const touch = event.touches[0];
+		const element = document.elementFromPoint(touch.clientX, touch.clientY);
+		if (element === null || !(element instanceof HTMLElement))
+			return;
+
+		let props : CellProps;
+		try 
+		{
+			props = { x: Number(element.dataset.x), y: Number(element.dataset.y) };
+			// Touch was moved to an element that is outside the grid
+			if (isNaN(props.x) || isNaN(props.y))
+			{
+				currentTouches[event.changedTouches[0].identifier] = undefined;
+				return;
+			}
+		}
+		catch {
+			return;
+		}
+
+		if (!currentTouches[touch.identifier])
+		{
+			currentTouches[touch.identifier] = element;
+			if (cellClicked && !disabled)
+				cellClicked(props.x, props.y);
+			return;
+		} 
+
+		if (currentTouches[touch.identifier] === element)
+			return;
+
+		currentTouches[touch.identifier] = element;
+		if (cellClicked && !disabled)
+			cellClicked(props.x, props.y);
+	};
+	const touchEndHandler = (event: TouchEvent) => {
+		if (!browser || event.changedTouches.length !== 1)
+			return;
+
+		currentTouches[event.changedTouches[0].identifier] = undefined;
 	};
 
 	const baseCellClasses = $derived({
@@ -85,16 +132,18 @@
 						data-x={x}
 						data-y={y}
 						onmouseenter={mouseEventHandler({ x, y })}
-						onmousedown={mouseEventHandler({ x, y })}
+						ontouchstart={touchHandler}
+						ontouchmove={touchHandler}
+						ontouchend={touchEndHandler}
 						class={{
+							'select-none': true,
+							'border-t-2': y === 0,
+							'border-s-2': x === 0,
 							...baseCellClasses,
 							...getPalleteClasses($PALETTE, 'bg', 700, 700, f),
 							...getPalleteClasses($PALETTE, 'bg', 300, 300, !f),
 							...getPalleteClasses($PALETTE, 'bg', 800, 900, f && !disabled, "hover"),
 							...getPalleteClasses($PALETTE, 'bg', 200, 200, !f && !disabled, "hover"),
-							'select-none': true,
-							'border-t-2': y === 0,
-							'border-s-2': x === 0,
 							...getBorderClasses(x, y),
 						}}
 					></td>
