@@ -56,7 +56,7 @@ export class Nonogram implements Solvable<SolvedNonogram> {
 		const clauses = this.getClauses(ctx, variables);
 
 		const solver = new Solver();
-		solver.add(clauses)
+		solver.add(clauses);
 		if ((await solver.check()) !== 'sat') return 'unsat';
 
 		const model = solver.model();
@@ -73,11 +73,10 @@ export class Nonogram implements Solvable<SolvedNonogram> {
 	}
 
 	getClauses<Name extends string>(ctx: Context<Name>, variables: Bool<Name>[][]) {
-		const { And, Or, } = ctx;
+		const { And, Or } = ctx;
 
 		const createClauseForArr = (numbers: number[], variables: Bool<Name>[]) => {
-			if (numbers.length <= 0)
-				return And(...variables.map(b => b.not()));
+			if (numbers.length <= 0) return And(...variables.map((b) => b.not()));
 
 			// Minimum amount of cells required to fill in the given numbers.
 			const numbersSum = numbers.reduce((acc, v) => acc + v, 0);
@@ -102,40 +101,44 @@ export class Nonogram implements Solvable<SolvedNonogram> {
 			} else {
 				const combinations = starsAndBars(variables.length - numbersSum, numbers.length + 1);
 
-				const clauses = combinations.flatMap(c => {
-					const result = c.reduce((acc, s, idx) => {
-						const n = numbers[idx];
-						const notQuantifiedCells = variables.slice(acc.idx, acc.idx + s);
-						acc.clauses.push(...notQuantifiedCells.map(b => b.not()));
-						if (!n)
+				const clauses = combinations.flatMap((c) => {
+					const result = c.reduce(
+						(acc, s, idx) => {
+							const n = numbers[idx];
+							const notQuantifiedCells = variables.slice(acc.idx, acc.idx + s);
+							acc.clauses.push(...notQuantifiedCells.map((b) => b.not()));
+							if (!n) return acc;
+
+							acc.idx += s;
+							const newClause = variables.slice(acc.idx, acc.idx + n);
+
+							acc.clauses.push(...newClause);
+							acc.idx += n;
+
 							return acc;
-
-						acc.idx += s;
-						const newClause = variables.slice(acc.idx, acc.idx + n);
-						
-						acc.clauses.push(...newClause);
-						acc.idx += n;
-
-						return acc;
-					}, { idx: 0, clauses: [] as Bool<Name>[] });
+						},
+						{ idx: 0, clauses: [] as Bool<Name>[] }
+					);
 
 					return And(...result.clauses);
 				});
-				
+
 				return Or(...clauses);
 				// return And(Or(...clauses), exactlyOneClause);
 			}
 		};
 
-		const horizontalClauses = this.horizontal.map((numbers, idx) =>
-			createClauseForArr(numbers, variables[idx])
-		).filter(v => !!v);
-		const verticalClauses = this.vertical.map((numbers, idx) =>
-			createClauseForArr(
-				numbers,
-				variables.map((vs) => vs[idx])
+		const horizontalClauses = this.horizontal
+			.map((numbers, idx) => createClauseForArr(numbers, variables[idx]))
+			.filter((v) => !!v);
+		const verticalClauses = this.vertical
+			.map((numbers, idx) =>
+				createClauseForArr(
+					numbers,
+					variables.map((vs) => vs[idx])
+				)
 			)
-		).filter(v => !!v);
+			.filter((v) => !!v);
 
 		const clauses = And(...horizontalClauses, ...verticalClauses);
 		return clauses;

@@ -4,18 +4,14 @@
 	import { init } from 'z3-solver';
 	import { getPalleteClasses, mapXY } from '$lib/util';
 	import Timer from '$lib/components/Timer.svelte';
-	import { Button } from 'bits-ui';
+	import { Button, Separator, Toolbar } from 'bits-ui';
 	import { PALETTE } from '$lib/storable';
 
-	const nonogram = $state(
-		new Nonogram(
-			[[], [], [5], [1], [], []],
-			[[1], [1], [1], [1], [1], [1]]
-		)
-	);
-	let filled = $state({
+	const nonogram = $state(new Nonogram([[], [], [5], [1], [], []], [[1], [1], [1], [1], [1], [1]]));
+	const initialFilledState = {
 		cells: mapXY(nonogram.horizontal.length, nonogram.vertical.length, (_) => false)
-	});
+	};
+	let filled = $state(initialFilledState);
 
 	let solving = $state(false);
 	// TODO: Put this into onMount and store the solution to check if user completely solved.
@@ -37,12 +33,12 @@
 			if (result !== 'unsat') {
 				filled = result;
 				solved = true;
+				timer?.stopTimer();
 			} else {
 				// TODO: Show error message
-				alert("Nonogram is not solvable!");
+				alert('Nonogram is not solvable!');
 			}
-		}
-		catch {
+		} catch {
 			// TODO: Show error message?
 		}
 		solving = false;
@@ -65,36 +61,107 @@
 	const disabled = $derived(solved || solving);
 </script>
 
-<Timer bind:this={timer} bind:started={timerStarted} {disabled} />
+<NC {nonogram} {filled} {cellClicked} {disabled} />
 
-<Button.Root
-	{disabled}
+<Toolbar.Root
 	class={{
-		border: true,
 		rounded: true,
+		'border-border': true,
+		'bg-background-alt': true,
 		'shadow-mini': true,
-		'inline-flex': true,
+		'w-fit': true,
+		flex: true,
 		'items-center': true,
-		'gap-1': true,
-		'p-1': true,
-		...getPalleteClasses($PALETTE, 'bg', 100),
-		...getPalleteClasses($PALETTE, 'bg', 200, undefined, !disabled, "hover"),
-		"opacity-75": disabled,
+		'justify-center': true,
+		border: true,
+		'p-0': true
 	}}
-	onclick={solveNonogram}
 >
-	{#if solving}
-		<span class="icon-[solar--refresh-line-duotone] size-3 animate-spin"></span>
-	{/if}
-	<span
+	<div class="flex items-center">
+		<Toolbar.Button
+			{disabled}
+			class={{
+				'rounded-9px': true,
+				'text-foreground/80': true,
+				'hover:bg-muted': true,
+				'active:bg-dark-10': true,
+				'inline-flex': true,
+				'items-center': true,
+				'justify-center': true,
+				'p-1': true,
+				'text-sm': true,
+				'font-normal': true,
+				'transition-all': true,
+				'active:scale-[0.95]': !disabled,
+				'opacity-75': disabled
+			}}
+			onclick={solveNonogram}
+		>
+			<span class="icon-[ri--lightbulb-ai-line]"></span>
+			<span>Solve</span>
+		</Toolbar.Button>
+	</div>
+</Toolbar.Root>
+
+<div class="mt-2 flex gap-1">
+	<Timer bind:this={timer} bind:started={timerStarted} {disabled} />
+
+	<Button.Root
+		{disabled}
 		class={{
-			'inline-block': true,
-			'text-sm': true
+			border: true,
+			rounded: true,
+			'shadow-mini': true,
+			'inline-flex': true,
+			'items-center': true,
+			'gap-1': true,
+			'p-1': true,
+			...getPalleteClasses($PALETTE, 'bg', 100),
+			...getPalleteClasses($PALETTE, 'bg', 200, undefined, !disabled, 'hover'),
+			'opacity-75': disabled
+		}}
+		onclick={solveNonogram}
+	>
+		{#if solving}
+			<span class="icon-[solar--refresh-line-duotone] size-3 animate-spin"></span>
+		{/if}
+		<span
+			class={{
+				'inline-block': true,
+				'text-sm': true
+			}}
+		>
+			{solving ? 'Solving' : 'Solve'}
+		</span>
+	</Button.Root>
+
+	<Button.Root
+		{disabled}
+		class={{
+			border: true,
+			rounded: true,
+			'shadow-mini': true,
+			'inline-flex': true,
+			'items-center': true,
+			'gap-1': true,
+			'p-1': true,
+			...getPalleteClasses($PALETTE, 'bg', 100),
+			...getPalleteClasses($PALETTE, 'bg', 200, undefined, !disabled, 'hover'),
+			'opacity-75': disabled
+		}}
+		onclick={() => {
+			filled = initialFilledState;
+			timer?.setTime(0);
 		}}
 	>
-		{solving ? 'Solving' : 'Solve'}
-	</span>
-</Button.Root>
-<br />
-
-<NC {nonogram} {filled} {cellClicked} {disabled} />
+		<span class="icon-[solar--restart-circle-bold-duotone]"></span>
+		<span
+			class={{
+				'inline-block': true,
+				'text-sm': true
+			}}
+		>
+			Reset
+		</span>
+	</Button.Root>
+</div>

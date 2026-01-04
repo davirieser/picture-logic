@@ -7,7 +7,7 @@
 	type Props = {
 		nonogram: Nonogram;
 		filled: SolvedNonogram;
-		disabled: boolean,
+		disabled: boolean;
 		cellClicked: CellClickedHandler;
 	};
 	const { nonogram, filled, disabled, cellClicked }: Props = $props();
@@ -26,49 +26,39 @@
 			if (cellClicked && !disabled) await cellClicked(x, y);
 		};
 	};
-	const currentTouches : Record<number, HTMLElement | undefined> = $state({});
+	const currentTouches: Record<number, HTMLElement | undefined> = $state({});
 	const touchHandler = (event: TouchEvent) => {
-		if (!browser || event.touches.length !== 1)
-			return;
+		if (!browser || event.touches.length !== 1) return;
 
 		const touch = event.touches[0];
 		const element = document.elementFromPoint(touch.clientX, touch.clientY);
-		if (element === null || !(element instanceof HTMLElement))
-			return;
+		if (element === null || !(element instanceof HTMLElement)) return;
 
-		let props : CellProps;
-		try 
-		{
+		let props: CellProps;
+		try {
 			props = { x: Number(element.dataset.x), y: Number(element.dataset.y) };
 			// Touch was moved to an element that is outside the grid
-			if (isNaN(props.x) || isNaN(props.y))
-			{
+			if (isNaN(props.x) || isNaN(props.y)) {
 				currentTouches[event.changedTouches[0].identifier] = undefined;
 				return;
 			}
-		}
-		catch {
+		} catch {
 			return;
 		}
 
-		if (!currentTouches[touch.identifier])
-		{
+		if (!currentTouches[touch.identifier]) {
 			currentTouches[touch.identifier] = element;
-			if (cellClicked && !disabled)
-				cellClicked(props.x, props.y);
+			if (cellClicked && !disabled) cellClicked(props.x, props.y);
 			return;
-		} 
+		}
 
-		if (currentTouches[touch.identifier] === element)
-			return;
+		if (currentTouches[touch.identifier] === element) return;
 
 		currentTouches[touch.identifier] = element;
-		if (cellClicked && !disabled)
-			cellClicked(props.x, props.y);
+		if (cellClicked && !disabled) cellClicked(props.x, props.y);
 	};
 	const touchEndHandler = (event: TouchEvent) => {
-		if (!browser || event.changedTouches.length !== 1)
-			return;
+		if (!browser || event.changedTouches.length !== 1) return;
 
 		currentTouches[event.changedTouches[0].identifier] = undefined;
 	};
@@ -81,20 +71,20 @@
 	});
 
 	const getBorderClasses = (x: number, y: number) => {
-		const condition = (n: number, m: number) => 
-			n !== (m - 1) && (n % $ENHANCED_BORDER_SPACING === ($ENHANCED_BORDER_SPACING - 1));
+		const condition = (n: number, m: number) =>
+			n !== m - 1 && n % $ENHANCED_BORDER_SPACING === $ENHANCED_BORDER_SPACING - 1;
 		return {
 			'border-e-2': condition(x, nonogram.horizontal.length),
-			'border-b-2': condition(y, nonogram.vertical.length),
+			'border-b-2': condition(y, nonogram.vertical.length)
 		};
-	}
+	};
 
 	const getHighestStack = (n: number[][]) => Math.max(...n.map((s) => s.length));
 	const highestStackHorizontal = $derived(getHighestStack(nonogram.horizontal)),
 		highestStackVertical = $derived(getHighestStack(nonogram.vertical));
 </script>
 
-<table class="m-1">
+<table>
 	<tbody>
 		{#each Array.from({ length: Math.max(highestStackHorizontal, 1) }) as _, y}
 			<tr>
@@ -104,7 +94,7 @@
 						rowspan={Math.max(highestStackHorizontal, 1)}
 						class={{
 							...baseCellClasses,
-							...getPalleteClasses($PALETTE, 'bg', 50),
+							...getPalleteClasses($PALETTE, 'bg', 50)
 						}}
 					></td>
 				{/if}
@@ -142,9 +132,9 @@
 							...baseCellClasses,
 							...getPalleteClasses($PALETTE, 'bg', 700, 700, f),
 							...getPalleteClasses($PALETTE, 'bg', 300, 300, !f),
-							...getPalleteClasses($PALETTE, 'bg', 800, 900, f && !disabled, "hover"),
-							...getPalleteClasses($PALETTE, 'bg', 200, 200, !f && !disabled, "hover"),
-							...getBorderClasses(x, y),
+							...getPalleteClasses($PALETTE, 'bg', 800, 900, f && !disabled, 'hover'),
+							...getPalleteClasses($PALETTE, 'bg', 200, 200, !f && !disabled, 'hover'),
+							...getBorderClasses(x, y)
 						}}
 					></td>
 				{/each}
@@ -158,7 +148,7 @@
 		class={{
 			...baseCellClasses,
 			...getPalleteClasses($PALETTE, 'bg', 100),
-			...getBorderClasses(x, y),
-		}}
-	>{n}</td>
+			...getBorderClasses(x, y)
+		}}>{n}</td
+	>
 {/snippet}

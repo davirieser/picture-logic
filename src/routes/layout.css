@@ -1,11 +1,13 @@
 @import 'tailwindcss';
-@plugin "@tailwindcss/forms";
+@plugin '@tailwindcss/forms';
 
 /* TODO: Solve this another way? Let user create their own palette? */
-@source inline("{dark:,}{hover:,}{bg,text,decoration,border,outline,shadow,inset-shadow,ring,inset-ring,accent,caret,fill,stroke}-{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose,slate,gray,zinc,neutral,stone}-{50,{100..900..100},950}");
+@source inline(
+	'{dark:,}{hover:,}{bg,text,decoration,border,outline,shadow,inset-shadow,ring,inset-ring,accent,caret,fill,stroke}-{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose,slate,gray,zinc,neutral,stone}-{50,{100..900..100},950}'
+);
 
 /* https://tailwindcss.com/docs/dark-mode#using-a-data-attribute */
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 /* https://iconify.design/docs/usage/css/tailwind/tailwind4/ */
-@plugin "@iconify/tailwind4";
+@plugin '@iconify/tailwind4';

@@ -14,19 +14,19 @@ export default defineConfig({
 					src: 'node_modules/z3-solver/build/z3-built.*',
 					dest: ''
 				}
-			],
+			]
 		}),
 		{
 			// Plugin code is from https://github.com/chaosprint/vite-plugin-cross-origin-isolation
-			name: "configure-response-headers",
+			name: 'configure-response-headers',
 			configureServer: (server) => {
 				server.middlewares.use((req, res, next) => {
 					switch (req.url) {
-						case "/z3-built.wasm":
-						case "/z3-built.js":
-						case "/":
-							res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
-							res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+						case '/z3-built.wasm':
+						case '/z3-built.js':
+						case '/':
+							res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+							res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
 							next();
 							break;
 						default:
@@ -34,10 +34,10 @@ export default defineConfig({
 							break;
 					}
 				});
-			},
+			}
 		},
-		tailwindcss(), 
-		sveltekit(), 
+		tailwindcss(),
+		sveltekit(),
 		devtoolsJson()
 	],
 

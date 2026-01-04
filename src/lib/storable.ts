@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { writable } from 'svelte/store'
+import { writable } from 'svelte/store';
 import { PALETTES, type Palette } from './util';
 
 // https://github.com/babichjacob/svelte-localstorage/blob/main/projects/svelte-localstorage/browser.js
@@ -14,16 +14,18 @@ import { PALETTES, type Palette } from './util';
  * @returns {import("svelte/store").Writable<T>} A writable store that synchronizes with localStorage
  */
 export function localStorageWritable<T>(
-   key: string,
-   initial: T,
-   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-   validityCheck: (item: T) => boolean = _ => true,
-   { serialize = JSON.stringify, deserialize = JSON.parse }: { serialize?: (arg0: T) => string; deserialize?: (arg0: string) => T; } = {}
-): import("svelte/store").Writable<T> {
+	key: string,
+	initial: T,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	validityCheck: (item: T) => boolean = (_) => true,
+	{
+		serialize = JSON.stringify,
+		deserialize = JSON.parse
+	}: { serialize?: (arg0: T) => string; deserialize?: (arg0: string) => T } = {}
+): import('svelte/store').Writable<T> {
 	let currentValue = initial;
 
-	if (!browser)
-		return writable(initial);
+	if (!browser) return writable(initial);
 
 	const syncCurrentValue = (setStore: (_: T) => void, value: T) => {
 		setStore(value);
@@ -35,8 +37,7 @@ export function localStorageWritable<T>(
 
 		try {
 			const deserialized = deserialize(localValue);
-			if (!validityCheck(deserialized))
-				return initial;
+			if (!validityCheck(deserialized)) return initial;
 			return deserialized;
 		} catch (error) {
 			console.error(
@@ -59,13 +60,12 @@ export function localStorageWritable<T>(
 		syncCurrentValue(setStore, parseFromLocalStorage(localStorageValue));
 
 		const setFromStorageEvents = (event: StorageEvent) => {
-			if (event.key !== key)
-				return;
+			if (event.key !== key) return;
 
 			syncCurrentValue(setStore, parseFromLocalStorage(event.newValue));
 		};
-		window.addEventListener("storage", setFromStorageEvents);
-		return () => window.removeEventListener("storage", setFromStorageEvents);
+		window.addEventListener('storage', setFromStorageEvents);
+		return () => window.removeEventListener('storage', setFromStorageEvents);
 	});
 
 	const set = (value: T) => {
@@ -94,20 +94,18 @@ export function localStorageWritable<T>(
 	};
 
 	return { set, subscribe, update };
-};
+}
 
-export const THEME = localStorageWritable("Theme", false);
+export const THEME = localStorageWritable('Theme', false);
 
-const DEFAULT_PALETTE : Palette = "stone";
-export const PALETTE = localStorageWritable<Palette>(
-	"Palette", 
-	DEFAULT_PALETTE, 
-	v => (PALETTES as unknown as string[]).includes(v)
+const DEFAULT_PALETTE: Palette = 'stone';
+export const PALETTE = localStorageWritable<Palette>('Palette', DEFAULT_PALETTE, (v) =>
+	(PALETTES as unknown as string[]).includes(v)
 );
 
 const DEFAULT_ENHANCED_BORDER_SPACING = 5;
 export const ENHANCED_BORDER_SPACING = localStorageWritable(
-	"EnhancedBorderSpacing", 
+	'EnhancedBorderSpacing',
 	DEFAULT_ENHANCED_BORDER_SPACING,
-	n => n > 0
-); 
+	(n) => n > 0
+);

@@ -30,7 +30,7 @@
 			'list-none': true
 		}}
 	>
-		<NavigationMenu.Item class="h-6 me-2">
+		<NavigationMenu.Item class="me-2 h-6">
 			<NavigationMenu.Link
 				href="/settings"
 				class={{

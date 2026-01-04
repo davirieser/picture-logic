@@ -11,7 +11,7 @@ const config = {
 		// TODO: Fix Headers in final deployment adapter.
 		// https://svelte.dev/docs/kit/adapter-netlify#Netlify-alternatives-to-SvelteKit-functionality-_headers-and-_redirects
 		adapter: adapter()
-	},
+	}
 };
 
 export default config;
