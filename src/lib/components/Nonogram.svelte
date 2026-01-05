@@ -9,8 +9,15 @@
 		filled: SolvedNonogram;
 		disabled: boolean;
 		cellClicked: CellClickedHandler;
+		class?: Record<string, boolean>,
 	};
-	const { nonogram, filled, disabled, cellClicked }: Props = $props();
+	const { 
+		nonogram, 
+		filled, 
+		disabled, 
+		cellClicked, 
+		class: classes = {},
+	}: Props = $props();
 
 	type CellClickedHandler = (x: number, y: number) => Promise<void>;
 
@@ -84,7 +91,7 @@
 		highestStackVertical = $derived(getHighestStack(nonogram.vertical));
 </script>
 
-<table>
+<table class={classes}>
 	<tbody>
 		{#each Array.from({ length: Math.max(highestStackHorizontal, 1) }) as _, y}
 			<tr>

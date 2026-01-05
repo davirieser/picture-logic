@@ -61,107 +61,125 @@
 	const disabled = $derived(solved || solving);
 </script>
 
-<NC {nonogram} {filled} {cellClicked} {disabled} />
+<div class={{
+	flex: true,
+	"flex-col": true,
+	"justify-center": true,
+	"gap-1": true,
+}}>
+	<NC class={{ "mx-auto": true, }} {nonogram} {filled} {cellClicked} {disabled} />
 
-<Toolbar.Root
-	class={{
-		rounded: true,
-		'border-border': true,
-		'bg-background-alt': true,
-		'shadow-mini': true,
-		'w-fit': true,
-		flex: true,
-		'items-center': true,
-		'justify-center': true,
-		border: true,
-		'p-0': true
-	}}
->
-	<div class="flex items-center">
-		<Toolbar.Button
+	<Toolbar.Root
+		class={{
+			rounded: true,
+			'border-border': true,
+			'bg-background-alt': true,
+			'shadow-mini': true,
+			'w-fit': true,
+			flex: true,
+			'items-center': true,
+			'justify-center': true,
+			border: true,
+			'p-0': true,
+			"mx-auto": true,
+		}}
+	>
+		<div class="flex items-center">
+			<Toolbar.Button
+				{disabled}
+				class={{
+					'rounded-9px': true,
+					'text-foreground/80': true,
+					'hover:bg-muted': true,
+					'active:bg-dark-10': true,
+					'inline-flex': true,
+					'items-center': true,
+					'justify-center': true,
+					'p-1': true,
+					'text-sm': true,
+					'font-normal': true,
+					'transition-all': true,
+					'active:scale-[0.95]': !disabled,
+					'opacity-75': disabled
+				}}
+				onclick={solveNonogram}
+			>
+				<span class="icon-[ri--lightbulb-ai-line]"></span>
+				<span>Solve</span>
+			</Toolbar.Button>
+		</div>
+
+		<Separator.Root class={{
+			...getPalleteClasses($PALETTE, "bg", 800),
+			"mx-1": true,
+			"w-px": true,
+			"self-stretch": true,
+		}} />
+
+		<div class="flex items-center">
+			<Timer bind:this={timer} bind:started={timerStarted} {disabled} />
+		</div>
+	</Toolbar.Root>
+
+	<div class="mt-2 flex gap-1">
+
+		<Button.Root
 			{disabled}
 			class={{
-				'rounded-9px': true,
-				'text-foreground/80': true,
-				'hover:bg-muted': true,
-				'active:bg-dark-10': true,
+				border: true,
+				rounded: true,
+				'shadow-mini': true,
 				'inline-flex': true,
 				'items-center': true,
-				'justify-center': true,
+				'gap-1': true,
 				'p-1': true,
-				'text-sm': true,
-				'font-normal': true,
-				'transition-all': true,
-				'active:scale-[0.95]': !disabled,
+				...getPalleteClasses($PALETTE, 'bg', 100),
+				...getPalleteClasses($PALETTE, 'bg', 200, undefined, !disabled, 'hover'),
 				'opacity-75': disabled
 			}}
 			onclick={solveNonogram}
 		>
-			<span class="icon-[ri--lightbulb-ai-line]"></span>
-			<span>Solve</span>
-		</Toolbar.Button>
+			{#if solving}
+				<span class="icon-[solar--refresh-line-duotone] size-3 animate-spin"></span>
+			{/if}
+			<span
+				class={{
+					'inline-block': true,
+					'text-sm': true
+				}}
+			>
+				{solving ? 'Solving' : 'Solve'}
+			</span>
+		</Button.Root>
+
+		<Button.Root
+			{disabled}
+			class={{
+				border: true,
+				rounded: true,
+				'shadow-mini': true,
+				'inline-flex': true,
+				'items-center': true,
+				'gap-1': true,
+				'p-1': true,
+				...getPalleteClasses($PALETTE, 'bg', 100),
+				...getPalleteClasses($PALETTE, 'bg', 200, undefined, !disabled, 'hover'),
+				'opacity-75': disabled
+			}}
+			onclick={() => {
+				filled = initialFilledState;
+				timer?.setTime(0);
+			}}
+		>
+			<span class="icon-[solar--restart-circle-bold-duotone]"></span>
+			<span
+				class={{
+					'inline-block': true,
+					'text-sm': true
+				}}
+			>
+				Reset
+			</span>
+		</Button.Root>
 	</div>
-</Toolbar.Root>
-
-<div class="mt-2 flex gap-1">
-	<Timer bind:this={timer} bind:started={timerStarted} {disabled} />
-
-	<Button.Root
-		{disabled}
-		class={{
-			border: true,
-			rounded: true,
-			'shadow-mini': true,
-			'inline-flex': true,
-			'items-center': true,
-			'gap-1': true,
-			'p-1': true,
-			...getPalleteClasses($PALETTE, 'bg', 100),
-			...getPalleteClasses($PALETTE, 'bg', 200, undefined, !disabled, 'hover'),
-			'opacity-75': disabled
-		}}
-		onclick={solveNonogram}
-	>
-		{#if solving}
-			<span class="icon-[solar--refresh-line-duotone] size-3 animate-spin"></span>
-		{/if}
-		<span
-			class={{
-				'inline-block': true,
-				'text-sm': true
-			}}
-		>
-			{solving ? 'Solving' : 'Solve'}
-		</span>
-	</Button.Root>
-
-	<Button.Root
-		{disabled}
-		class={{
-			border: true,
-			rounded: true,
-			'shadow-mini': true,
-			'inline-flex': true,
-			'items-center': true,
-			'gap-1': true,
-			'p-1': true,
-			...getPalleteClasses($PALETTE, 'bg', 100),
-			...getPalleteClasses($PALETTE, 'bg', 200, undefined, !disabled, 'hover'),
-			'opacity-75': disabled
-		}}
-		onclick={() => {
-			filled = initialFilledState;
-			timer?.setTime(0);
-		}}
-	>
-		<span class="icon-[solar--restart-circle-bold-duotone]"></span>
-		<span
-			class={{
-				'inline-block': true,
-				'text-sm': true
-			}}
-		>
-			Reset
-		</span>
-	</Button.Root>
 </div>

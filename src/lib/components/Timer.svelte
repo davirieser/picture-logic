@@ -73,15 +73,18 @@
 <button
 	{disabled}
 	class={{
-		border: true,
-		rounded: true,
+		'rounded-9px': true,
+		'text-foreground/80': true,
+		'hover:bg-muted': true,
+		'active:bg-dark-10': true,
 		'inline-flex': true,
 		'items-center': true,
-		'gap-1': true,
-		'text-sm': true,
+		'justify-center': true,
 		'p-1': true,
-		...getPalleteClasses($PALETTE, 'bg', 100),
-		...getPalleteClasses($PALETTE, 'bg', 200, undefined, enabled, 'hover'),
+		'text-sm': true,
+		'font-normal': true,
+		'transition-all': true,
+		'active:scale-[0.95]': !disabled,
 		'opacity-75': disabled,
 		...classes
 	}}
