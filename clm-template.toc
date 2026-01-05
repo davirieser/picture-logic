@@ -1,0 +1,4 @@
+\babel@toc {ngerman}{}\relax 
+\babel@toc {english}{}\relax 
+\contentsline {section}{\numberline {0.1}Test}{1}{section.0.1}%
+\providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 
