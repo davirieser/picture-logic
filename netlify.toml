@@ -1,0 +1,13 @@
+[build]
+	command = "bun run build"
+	publish = "build"
+
+[build.environment]
+	ADAPTER = "netlify"
+
+# Cross-Origin isolation headers required by z3-solver (SharedArrayBuffer)
+[[headers]]
+	for = "/*"
+	[headers.values]
+		Cross-Origin-Embedder-Policy = "require-corp"
+		Cross-Origin-Opener-Policy = "same-origin"

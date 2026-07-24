@@ -21,22 +21,23 @@ Guidance for AI agents working on the picture-logic codebase.
 - **Solver**: `z3-solver` (WASM) — requires Cross-Origin isolation headers (COOP/COEP)
 - **Testing**: Vitest with `@vitest/browser-playwright` (browser tests for `.svelte` files) and node environment (server tests)
 - **Package manager**: bun (`bun.lock`); npm scripts defined in `package.json`
-- **Adapter**: `@sveltejs/adapter-auto` (targets Netlify — see `svelte.config.js`)
+- **Adapter**: `@sveltejs/adapter-node` (default, for Docker/standalone) or `@sveltejs/adapter-netlify` (for Netlify), selected at build time via the `ADAPTER` env var in `svelte.config.js`
 
 ## Commands
 
 | Command             | Description                                        |
 | ------------------- | -------------------------------------------------- |
-| `npm run dev`       | Start Vite dev server                              |
-| `npm run build`     | Production build                                   |
-| `npm run preview`   | Preview production build                           |
-| `npm run check`     | Type-check with `svelte-check` (run after changes) |
-| `npm run lint`      | Prettier check + ESLint (run after changes)        |
-| `npm run format`    | Auto-format with Prettier                          |
-| `npm run test`      | Run unit tests once (Vitest)                       |
-| `npm run test:unit` | Run unit tests in watch mode                       |
+| `bun run dev`       | Start Vite dev server                              |
+| `bun run build`     | Production build                                   |
+| `bun run preview`   | Preview production build                           |
+| `bun run check`     | Type-check with `svelte-check` (run after changes) |
+| `bun run lint`      | Prettier check + ESLint (run after changes)        |
+| `bun run format`    | Auto-format with Prettier                          |
+| `bun run test`      | Run unit tests once (Vitest)                       |
+| `bun run test:unit` | Run unit tests in watch mode                       |
+| `docker compose up` | Build and run the app + Postgres DB via Compose    |
 
-Always run `npm run lint` and `npm run check` after making changes.
+Always run `bun run lint` and `bun run check` after making changes.
 
 ## Project Structure
 
@@ -65,8 +66,14 @@ src/
 static/
   robots.txt
 vite.config.ts          # Z3 static copy + COOP/COEP middleware + vitest config
-svelte.config.js        # adapter-auto, vitePreprocess
+svelte.config.js        # adapter-node/adapter-netlify (via ADAPTER env var), vitePreprocess
 eslint.config.js        # ESLint flat config (TS + Svelte + Prettier)
+netlify.toml            # Netlify build config (sets ADAPTER=netlify, COOP/COEP headers)
+Containerfile           # OCI image build (bun base, builds and serves app)
+compose.yml             # Docker/Podman Compose: app service + Postgres DB
+.dockerignore           # Excludes node_modules, build, .svelte-kit, etc. from image
+.husky/
+  pre-commit            # Runs lint-staged (formats staged files) before commit
 ```
 
 ## Architecture
@@ -145,10 +152,29 @@ Vitest config in `vite.config.ts` defines two projects:
 
 Place component tests as `Foo.svelte.test.ts` next to the component; place logic tests as `foo.test.ts`.
 
+## Git Hooks
+
+Pre-commit is managed by **husky** (`.husky/pre-commit`) and runs **lint-staged**. lint-staged runs `prettier --write` on staged files matching `*.{js,ts,svelte,json,css,md}` and re-stages the result. The `prepare` script (`husky && svelte-kit sync || echo ''`) installs the hooks automatically after `bun install`.
+
+## Containerization
+
+The same codebase deploys to either target via the `ADAPTER` env var (see `svelte.config.js`): unset/`node` → `adapter-node` (Docker/standalone), `netlify` → `adapter-netlify`. `netlify.toml` sets `ADAPTER=netlify` for Netlify builds and also emits the COOP/COEP isolation headers required by Z3 across the whole site.
+
+`Containerfile` is a multi-stage build from `oven/bun`: it installs deps with `--frozen-lockfile`, runs `bun run build` with `ADAPTER=node` (adapter-node emits a self-contained server in `build/`), then runs `bun run ./build/index.js` on port `3000`. `compose.yml` defines two services:
+
+- **db**: `postgres:17-alpine` with a healthcheck and a named volume (`pgdata`) for persistence.
+- **app**: builds from `Containerfile`, depends on `db` being healthy, and receives `DATABASE_URL` (`postgres://picturelogic:picturelogic@db:5432/picturelogic`).
+
+The app does not yet consume the database; the infra is scaffolded for future use. `.dockerignore` excludes `node_modules`, `build`, `.svelte-kit`, `.netlify`, and `.git`.
+
+## Maintaining This File
+
+Update `AGENTS.md` whenever significant changes are made to the codebase — e.g. adding/removing dependencies or scripts, introducing new top-level files or directories, changing architecture, conventions, or tooling. Keep the Project Structure tree, Commands table, and Architecture sections in sync with reality. Do not let this file go stale.
+
 ## Current State / TODOs
 
 - Main page (`+page.svelte`) uses a hardcoded sample nonogram (`[[],[],[5],[1],[],[]]` / `[[1]...]`). No puzzle creation or sharing UI yet.
 - Win detection / solved check is stubbed (see TODOs in `+page.svelte`).
 - Error messaging for `'unsat'` uses `alert()` (placeholder).
-- `svelte.config.js` notes a TODO about Netlify `_headers`/`_redirects` adapter handling.
 - `layout.css` TODO: allow user-created palettes.
+- COOP/COEP isolation headers for Z3/`SharedArrayBuffer` are set via Vite middleware in dev and via `netlify.toml` on Netlify; the adapter-node production server (Docker) does not yet set them.
