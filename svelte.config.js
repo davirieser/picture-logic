@@ -16,7 +16,13 @@ const config = {
 	kit: {
 		// TODO: Fix Headers in final deployment adapter.
 		// https://svelte.dev/docs/kit/adapter-netlify#Netlify-alternatives-to-SvelteKit-functionality-_headers-and-_redirects
-		adapter
+		adapter,
+
+		typescript: {
+			config: (config) => {
+				config.include.push('../drizzle.config.ts');
+			}
+		}
 	}
 };
 

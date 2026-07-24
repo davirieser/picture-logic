@@ -13,7 +13,12 @@
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
 		"test:unit": "vitest",
-		"test": "bun run test:unit -- --run"
+		"test": "bun run test:unit -- --run",
+		"db:push": "drizzle-kit push",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "drizzle-kit migrate",
+		"db:studio": "drizzle-kit studio",
+		"auth:schema": "better-auth generate --config src/lib/server/auth.ts --output src/lib/server/db/auth.schema.ts --yes"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.4.0",
@@ -28,6 +33,10 @@
 		"@tailwindcss/vite": "^4.1.17",
 		"@types/node": "^24",
 		"@vitest/browser-playwright": "^4.0.15",
+		"auth": "^1.6.23",
+		"better-auth": "^1.6.23",
+		"drizzle-kit": "^0.31.10",
+		"drizzle-orm": "^0.45.2",
 		"eslint": "^9.39.1",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.13.1",
@@ -35,6 +44,7 @@
 		"husky": "^9.1.7",
 		"lint-staged": "^17.2.0",
 		"playwright": "^1.57.0",
+		"postgres": "^3.4.9",
 		"prettier": "^3.7.4",
 		"prettier-plugin-svelte": "^3.4.0",
 		"prettier-plugin-tailwindcss": "^0.7.2",
@@ -52,7 +62,10 @@
 		"*.{js,ts,svelte,json,css,md}": "prettier --write"
 	},
 	"dependencies": {
+		"better-auth": "^1.6.25",
 		"bits-ui": "^2.14.4",
+		"drizzle-orm": "^0.45.2",
+		"postgres": "^3.4.9",
 		"vite-plugin-static-copy": "^3.1.4",
 		"z3-solver": "^4.15.4"
 	}
