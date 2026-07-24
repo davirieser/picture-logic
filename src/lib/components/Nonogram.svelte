@@ -9,15 +9,9 @@
 		filled: SolvedNonogram;
 		disabled: boolean;
 		cellClicked: CellClickedHandler;
-		class?: Record<string, boolean>,
+		class?: Record<string, boolean>;
 	};
-	const { 
-		nonogram, 
-		filled, 
-		disabled, 
-		cellClicked, 
-		class: classes = {},
-	}: Props = $props();
+	const { nonogram, filled, disabled, cellClicked, class: classes = {} }: Props = $props();
 
 	type CellClickedHandler = (x: number, y: number) => Promise<void>;
 

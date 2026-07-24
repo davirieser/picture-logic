@@ -25,7 +25,7 @@ export default defineConfig(
 			// see: https://typescript-eslint.io/troubleshooting/faqs/eslint/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors
 			'no-undef': 'off',
 			'no-unused-vars': 'off',
-			"@typescript-eslint/no-unused-vars": "off"
+			'@typescript-eslint/no-unused-vars': 'off'
 		}
 	},
 	{

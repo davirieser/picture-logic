@@ -61,13 +61,15 @@
 	const disabled = $derived(solved || solving);
 </script>
 
-<div class={{
-	flex: true,
-	"flex-col": true,
-	"justify-center": true,
-	"gap-1": true,
-}}>
-	<NC class={{ "mx-auto": true, }} {nonogram} {filled} {cellClicked} {disabled} />
+<div
+	class={{
+		flex: true,
+		'flex-col': true,
+		'justify-center': true,
+		'gap-1': true
+	}}
+>
+	<NC class={{ 'mx-auto': true }} {nonogram} {filled} {cellClicked} {disabled} />
 
 	<Toolbar.Root
 		class={{
@@ -81,7 +83,7 @@
 			'justify-center': true,
 			border: true,
 			'p-0': true,
-			"mx-auto": true,
+			'mx-auto': true
 		}}
 	>
 		<div class="flex items-center">
@@ -109,12 +111,14 @@
 			</Toolbar.Button>
 		</div>
 
-		<Separator.Root class={{
-			...getPalleteClasses($PALETTE, "bg", 800),
-			"mx-1": true,
-			"w-px": true,
-			"self-stretch": true,
-		}} />
+		<Separator.Root
+			class={{
+				...getPalleteClasses($PALETTE, 'bg', 800),
+				'mx-1': true,
+				'w-px': true,
+				'self-stretch': true
+			}}
+		/>
 
 		<div class="flex items-center">
 			<Timer bind:this={timer} bind:started={timerStarted} {disabled} />
@@ -122,7 +126,6 @@
 	</Toolbar.Root>
 
 	<div class="mt-2 flex gap-1">
-
 		<Button.Root
 			{disabled}
 			class={{
