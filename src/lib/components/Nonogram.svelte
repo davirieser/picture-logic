@@ -7,11 +7,11 @@
 	type Props = {
 		nonogram: Nonogram;
 		filled: SolvedNonogram;
-		disabled: boolean;
+		disabled?: boolean;
 		cellClicked: CellClickedHandler;
 		class?: Record<string, boolean>;
 	};
-	const { nonogram, filled, disabled, cellClicked, class: classes = {} }: Props = $props();
+	const { nonogram, filled, disabled = false, cellClicked, class: classes = {} }: Props = $props();
 
 	type CellClickedHandler = (x: number, y: number) => Promise<void>;
 
