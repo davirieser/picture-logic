@@ -16,8 +16,8 @@ Guidance for AI agents working on the picture-logic codebase.
 - **Framework**: SvelteKit (Svelte 5 with runes — `$state`, `$derived`, `$props`, `$effect`, `$bindable`)
 - **Language**: TypeScript (strict mode, `checkJs` enabled)
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/vite`), `@tailwindcss/forms`, `prettier-plugin-tailwindcss`. Dark mode via `[data-theme=dark]` custom variant.
-- **UI components**: `bits-ui` (Button, Toolbar, Separator, NavigationMenu)
-- **Icons**: `@iconify/tailwind4` with `@iconify/json` (use `icon-[...]` class syntax)
+- **UI components**: `daisy-ui` https://daisyui.com/
+- **Icons**: HeroIcons https://heroicons.com/
 - **Solver**: `z3-solver` (WASM) — requires Cross-Origin isolation headers (COOP/COEP)
 - **Testing**: Vitest with `@vitest/browser-playwright` (browser tests for `.svelte` files) and node environment (server tests)
 - **Package manager**: bun (`bun.lock`); npm scripts defined in `package.json`
@@ -96,7 +96,6 @@ The `Nonogram` class holds `horizontal` (top clues) and `vertical` (left clues) 
 `localStorageWritable<T>` creates a Svelte writable store backed by `localStorage` with serialization, validity checks, and cross-tab `storage` event sync. Global stores:
 
 - `THEME` (`boolean`, dark mode toggle)
-- `PALETTE` (`Palette`, validated against `PALETTES`)
 - `ENHANCED_BORDER_SPACING` (`number > 0`, controls thick border every N cells)
 
 ### Utilities (`src/lib/util.ts`)
@@ -105,10 +104,6 @@ The `Nonogram` class holds `horizontal` (top clues) and `vertical` (left clues) 
 - `starsAndBars(balls, buckets)` — enumerates compositions for solver clause generation (first/last bucket may be empty).
 - `PALETTES` — tuple of Tailwind color names; `Palette` type.
 - `getPalleteClasses(palette, utility, step, darkStep?, enabled?, pseudoClass?)` — returns an object of conditional Tailwind class keys for dynamic palette theming. Note the typo `getPalleteClasses` (missing 't') — keep consistent with existing usage.
-
-### Tailwind Palette System (`src/routes/layout.css`)
-
-Uses `@source inline(...)` to generate all palette utility class combinations dynamically so they aren't purged. Dark mode via `@custom-variant dark`. Iconify via `@plugin '@iconify/tailwind4'`.
 
 ### Z3 / WASM Integration
 
