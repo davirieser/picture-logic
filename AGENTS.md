@@ -182,6 +182,8 @@ Update `AGENTS.md` whenever significant changes are made to the codebase — e.g
     - Create Page
     - Upload Page
       - Let user change preview
+      - fix theming for daisy-ui
+      - create secondary mode using edge detection algorithm
     - Theme controller
     - Search?
 - Setup DB
@@ -198,4 +200,6 @@ Next time:
     - Check for papers
       => Record read/used papers for own paper
 - Compare to other solving methods.
+- Look over all TODO's
 - Deploy to Netlify/Vercel
+- Write to supervisor
