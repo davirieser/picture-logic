@@ -17,7 +17,6 @@ Guidance for AI agents working on the picture-logic codebase.
 - **Language**: TypeScript (strict mode, `checkJs` enabled)
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/vite`), `@tailwindcss/forms`, `prettier-plugin-tailwindcss`. Dark mode via `[data-theme=dark]` custom variant.
 - **UI components**: `daisy-ui` https://daisyui.com/
-- **Icons**: HeroIcons https://heroicons.com/
 - **Solver**: `z3-solver` (WASM) — requires Cross-Origin isolation headers (COOP/COEP)
 - **Testing**: Vitest with `@vitest/browser-playwright` (browser tests for `.svelte` files) and node environment (server tests)
 - **Package manager**: bun (`bun.lock`); npm scripts defined in `package.json`
@@ -171,5 +170,32 @@ Update `AGENTS.md` whenever significant changes are made to the codebase — e.g
 - Main page (`+page.svelte`) uses a hardcoded sample nonogram (`[[],[],[5],[1],[],[]]` / `[[1]...]`). No puzzle creation or sharing UI yet.
 - Win detection / solved check is stubbed (see TODOs in `+page.svelte`).
 - Error messaging for `'unsat'` uses `alert()` (placeholder).
-- `layout.css` TODO: allow user-created palettes.
 - COOP/COEP isolation headers for Z3/`SharedArrayBuffer` are set via Vite middleware in dev and via `netlify.toml` on Netlify; the adapter-node production server (Docker) does not yet set them.
+
+- Create Navbar + Nonogram component
+  - Nonogram component
+    - Timer
+    - Cross out with right click
+    - Checkpoints
+  - Navbar
+    - Index Page
+    - Create Page
+    - Upload Page
+      - Let user change preview
+    - Theme controller
+    - Search?
+- Setup DB
+  - Generate schema for nonogram
+  - Nonogram foreign key to user table with solved boolean
+  - Expose database backup via page if I take down page at some point
+
+Next time:
+
+- Solver
+  - Actually generate a better strategy
+    - https://en.wikipedia.org/wiki/Nonogram#Mathematical_approach
+    - https://www.nonograms.org/methods
+    - Check for papers
+      => Record read/used papers for own paper
+- Compare to other solving methods.
+- Deploy to Netlify/Vercel
