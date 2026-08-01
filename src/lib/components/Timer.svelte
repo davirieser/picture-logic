@@ -1,7 +1,4 @@
 <script lang="ts">
-	import { PALETTE } from '$lib/storable';
-	import { getPalleteClasses } from '$lib/util';
-
 	const STOPPED_TIMER_STATE = 0,
 		STARTED_TIMER_STATE = 1,
 		PAUSED_TIMER_STATE = 2;
@@ -25,7 +22,8 @@
 				return;
 			case STOPPED_TIMER_STATE:
 				timer = { state: STARTED_TIMER_STATE, elapsed: 0 };
-			case PAUSED_TIMER_STATE:
+				break;
+			case PAUSED_TIMER_STATE: {
 				timer = { state: STARTED_TIMER_STATE, elapsed: timer.elapsed };
 				let last_time = performance.now();
 				timer.frame = requestAnimationFrame(function update(time) {
@@ -37,6 +35,7 @@
 					last_time = time;
 				});
 				break;
+			}
 		}
 	}
 	export function stopTimer() {

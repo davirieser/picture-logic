@@ -1,5 +1,5 @@
 import type { Context, Bool } from 'z3-solver';
-import { mapXY, starsAndBars, type Palette } from '$lib/util';
+import { mapXY, starsAndBars } from '$lib/util';
 
 type NamedBool = Bool & { _name: string };
 
@@ -7,8 +7,9 @@ export interface NonogramCellPosition {
 	x: number;
 	y: number;
 }
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface NonogramCheckpoint {
-	palette: Palette;
+	// TODO: Add color
 }
 export interface NonogramGame {
 	nonogram: Nonogram;
@@ -24,7 +25,7 @@ export interface SolvedNonogram {
 	cells: boolean[][];
 }
 export interface NonogramCell {
-	palette?: Palette;
+	// TODO: Add color
 	filled: boolean;
 	hint?: boolean;
 	firstClick: boolean;

@@ -1,6 +1,5 @@
 import { browser } from '$app/environment';
 import { writable } from 'svelte/store';
-import { PALETTES, type Palette } from './util';
 
 // https://github.com/babichjacob/svelte-localstorage/blob/main/projects/svelte-localstorage/browser.js
 
@@ -98,11 +97,7 @@ export function localStorageWritable<T>(
 
 export const THEME = localStorageWritable('Theme', false);
 
-const DEFAULT_PALETTE: Palette = 'stone';
-export const PALETTE = localStorageWritable<Palette>('Palette', DEFAULT_PALETTE, (v) =>
-	(PALETTES as unknown as string[]).includes(v)
-);
-
+// TODO: Move to a separate file for storable settings
 const DEFAULT_ENHANCED_BORDER_SPACING = 5;
 export const ENHANCED_BORDER_SPACING = localStorageWritable(
 	'EnhancedBorderSpacing',
