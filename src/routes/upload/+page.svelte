@@ -267,6 +267,7 @@
 		</div>
 	</div>
 
+	<!-- TODO: Generate better toolbar -->
 	<div class="mt-6 flex flex-wrap items-center gap-6">
 		<div class="flex items-center gap-2">
 			<label for="resolution" class="text-sm font-medium">Nonogram size</label>
@@ -313,9 +314,6 @@
 			>
 				{isUploading ? 'Uploading...' : 'Upload Nonogram'}
 			</button>
-			{#if !isValidNonogram}
-				<span class="ml-2 text-xs text-gray-400">Generate a valid nonogram first</span>
-			{/if}
 		</div>
 	</div>
 
