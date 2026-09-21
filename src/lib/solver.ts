@@ -84,16 +84,17 @@ export class Nonogram implements Solvable<SolvedNonogram> {
 			const minCells = numbersSum + numbers.length - 1;
 
 			if (variables.length < minCells) {
-				// TODO: Better error message
-				throw new Error('unsat');
+				return ctx.Bool.val(false);
 			} else if (variables.length === minCells) {
 				const result = numbers.reduce(
 					(acc, n) => {
 						const newClause = variables.slice(acc.idx, acc.idx + n);
 						acc.clauses.push(...newClause);
 						acc.idx += n;
-						acc.clauses.push(variables[acc.idx].not());
-						acc.idx += 1;
+						if (acc.idx < variables.length) {
+							acc.clauses.push(variables[acc.idx].not());
+							acc.idx += 1;
+						}
 						return acc;
 					},
 					{ idx: 0, clauses: [] as Bool<Name>[] }
