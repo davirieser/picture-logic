@@ -38,6 +38,13 @@ Guidance for AI agents working on the picture-logic codebase.
 
 Always run `bun run lint` and `bun run check` after making changes.
 
+## User Workflow Preferences
+
+- Ask the user before making architectural decisions.
+- Prefer easy-to-read code. If an approach cannot remain easy to read, pause and ask the user before implementing it.
+- After every plan step or user prompt, run the formatter and commit the changes made for that step or prompt.
+- Apply these preferences to delegated subagents and external agents, including Claude.
+
 ## Project Structure
 
 ```
@@ -46,7 +53,8 @@ src/
   app.html              # HTML shell (loads z3-built.js, sets globalThis.initZ3)
   lib/
     index.ts            # $lib barrel (currently empty)
-    solver.ts           # Nonogram class + Z3 solver logic
+    solver.ts           # Nonogram automata, propagation, and Z3 solver logic
+    solver.test.ts      # Solver correctness and encoding-size regressions
     storable.ts         # localStorageWritable + global settings stores
     util.ts             # mapXY, starsAndBars, palette helpers, PALETTES
     assets/
@@ -79,14 +87,14 @@ compose.yml             # Docker/Podman Compose: app service + Postgres DB
 
 ### Nonogram Solver (`src/lib/solver.ts`)
 
-The `Nonogram` class holds `horizontal` (top clues) and `vertical` (left clues) as `number[][]`. It implements `Solvable<SolvedNonogram>` via `solve(ctx)`:
+The `Nonogram` class holds `horizontal` (column clues) and `vertical` (row clues) as `number[][]`. It implements `Solvable<SolvedNonogram>` via `solve(ctx)` and exposes `solveDetailed(ctx)` for diagnostics:
 
-- Creates a `Bool` variable per grid cell via `mapXY`.
-- Builds SAT clauses per row/column using `getClauses`:
-  - Empty clue → all cells false.
-  - Tight fit (cells == minCells) → exact placement clause.
-  - Otherwise → enumerates all valid placements via `starsAndBars` (combinatorics) and ORs them together.
-- Checks satisfiability with `solver.check()`, extracts the model, returns `{ cells }` or `'unsat'`.
+- Validates clue lengths and copies the input arrays.
+- Compiles each clue line into a cached finite automaton instead of enumerating complete placements.
+- Runs forward/backward line reachability in a queued row/column propagation pass. Easy puzzles can finish without creating a Z3 solver.
+- For unresolved cells, creates one Boolean variable per cell and encodes automaton boundary-state transitions with Boolean constraints.
+- Checks satisfiability with `solver.check()`, evaluates the model with completion, validates both clue axes, and returns `{ cells }` or `'unsat'` through the compatibility API.
+- `solveDetailed(ctx)` additionally reports `sat`, `unsat`, or `unknown` and records propagation, encoding, check, model, cache, and formula-size metrics.
 
 `NonogramGame` tracks `move_history` (positions + checkpoints) and optional `timeMs`.
 
@@ -146,6 +154,8 @@ Vitest config in `vite.config.ts` defines two projects:
 
 Place component tests as `Foo.svelte.test.ts` next to the component; place logic tests as `foo.test.ts`.
 
+`src/lib/solver.test.ts` covers exact-fit, impossible, empty, ambiguous, larger-grid, crossing-contradiction, and malformed-clue cases. `solveDetailed` metrics provide the basis for future repeatable benchmarks.
+
 ## Git Hooks
 
 Pre-commit is managed by **husky** (`.husky/pre-commit`) and runs **lint-staged**. lint-staged runs `prettier --write` on staged files matching `*.{js,ts,svelte,json,css,md}` and re-stages the result. The `prepare` script (`husky && svelte-kit sync || echo ''`) installs the hooks automatically after `bun install`.
@@ -193,13 +203,8 @@ Update `AGENTS.md` whenever significant changes are made to the codebase — e.g
 
 Next time:
 
-- Solver
-  - Actually generate a better strategy
-    - https://en.wikipedia.org/wiki/Nonogram#Mathematical_approach
-    - https://www.nonograms.org/methods
-    - Check for papers
-      => Record read/used papers for own paper
-- Compare to other solving methods.
+- Add a repeatable benchmark command for propagation versus Z3 encoding.
+- Compare the automaton encoding with integer start-position and BitVec experiments only after measuring WASM support and end-to-end performance.
 - Look over all TODO's
 - Deploy to Netlify/Vercel
 - Write to supervisor
