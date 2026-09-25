@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import { authClient } from '$lib/client';
 	import { THEME } from '$lib/storable';
 	import SettingsModal from './Settings.svelte';
 
@@ -28,6 +29,9 @@
 
 	let settingsModal: SettingsModal;
 
+	const session = authClient.useSession();
+	let user = $derived($session.isPending ? page.data.user : ($session.data?.user ?? null));
+
 	function openSettings() {
 		settingsModal.show();
 	}
@@ -36,15 +40,9 @@
 		$THEME = !$THEME;
 	}
 
-	function isActive(href: string) {
-		return page.url.pathname === href;
+	function isActive(...href: Parameters<typeof resolve>[0][]) {
+		return href.some((h) => page.url.pathname === h || page.url.pathname.startsWith(h + '/'));
 	}
-	const homeMatches = ['/', '/browse'];
-	const isHomeActive = $derived(
-		homeMatches.some(
-			(path) => page.url.pathname === path || page.url.pathname.startsWith(path + '/')
-		)
-	);
 </script>
 
 <div class="navbar bg-base-100 shadow-sm">
@@ -55,12 +53,12 @@
 			</div>
 			<ul
 				tabindex="-1"
-				class="menu dropdown-content z-1 mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
+				class="menu dropdown-content z-1 mt-3 w-52 menu-sm rounded-box bg-base-300/90 p-2 shadow"
 			>
 				{@render links()}
 			</ul>
 		</div>
-		<a href={resolve('/')} class="btn btn-ghost text-xl" class:btn-active={isHomeActive}
+		<a href={resolve('/')} class="btn btn-ghost text-xl" class:btn-active={isActive('/')}
 			>picture-logic</a
 		>
 
@@ -72,6 +70,7 @@
 	<div class="navbar-end gap-1">
 		{@render themeController()}
 		{@render settingsButton()}
+		{@render loginButton()}
 	</div>
 </div>
 
@@ -130,6 +129,27 @@
 			</a>
 		</li>
 	{/each}
+{/snippet}
+
+{#snippet loginButton()}
+	{#if user}
+		<div class="dropdown dropdown-end">
+			<div tabindex="0" role="button" class="placeholder btn avatar btn-circle btn-ghost">
+				<div class="avatar avatar-placeholder">
+					<div class="w-8 rounded-full bg-neutral text-neutral-content">
+						<span class="text-xs">{user.email[0].toUpperCase()}</span>
+					</div>
+				</div>
+			</div>
+			<ul class="menu dropdown-content z-1 mt-3 w-40 rounded-box bg-base-300/90 p-2 shadow">
+				<li><button onclick={() => authClient.signOut()}>Log out</button></li>
+			</ul>
+		</div>
+	{:else}
+		<a href={resolve('/login')} class="btn btn-ghost" class:btn-active={isActive('/login')}
+			>Log in</a
+		>
+	{/if}
 {/snippet}
 
 {#snippet navIcon(_icon: NavIcon, classes: string)}

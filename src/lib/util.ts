@@ -19,7 +19,7 @@ export function starsAndBars(balls: number, buckets: number) {
 			return;
 		}
 
-		// The fisrt and last bucket may be empty.
+		// The first and last bucket may be empty.
 		const start = remainingBuckets === buckets ? 0 : 1,
 			end = remainingBalls - (remainingBuckets - 2);
 		for (let i = start; i <= end; i++)

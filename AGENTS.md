@@ -34,6 +34,7 @@ Guidance for AI agents working on the picture-logic codebase.
 | `bun run format`    | Auto-format with Prettier                          |
 | `bun run test`      | Run unit tests once (Vitest)                       |
 | `bun run test:unit` | Run unit tests in watch mode                       |
+| `bun run benchmark` | Run the server-side solver benchmarks              |
 | `docker compose up` | Build and run the app + Postgres DB via Compose    |
 
 Always run `bun run lint` and `bun run check` after making changes.
@@ -53,8 +54,12 @@ src/
   app.html              # HTML shell (loads z3-built.js, sets globalThis.initZ3)
   lib/
     index.ts            # $lib barrel (currently empty)
+    generator.ts        # Entropy-weighted random nonogram generation
+    generator.test.ts   # Generator bounds, clue, and entropy tests
     solver.ts           # Nonogram automata, propagation, and Z3 solver logic
     solver.test.ts      # Solver correctness and encoding-size regressions
+    solver-benchmark.ts  # Reusable solver benchmark cases, runners, and reports
+    solver.bench.ts     # Vitest benchmark registrations for solver implementations
     storable.ts         # localStorageWritable + global settings stores
     util.ts             # mapXY, starsAndBars, palette helpers, PALETTES
     assets/
@@ -67,6 +72,8 @@ src/
   routes/
     +layout.svelte      # Global layout (theme, navbar)
     +page.svelte        # Main solve page (hardcoded sample nonogram)
+    create/
+      +page.svelte      # Entropy-based random puzzle generator
     layout.css          # Tailwind import, dark variant, iconify plugin, palette source
     settings/
       +page.svelte      # Settings page (palette, grid size)
@@ -97,6 +104,19 @@ The `Nonogram` class holds `horizontal` (column clues) and `vertical` (row clues
 - `solveDetailed(ctx)` additionally reports `sat`, `unsat`, or `unknown` and records propagation, encoding, check, model, cache, and formula-size metrics.
 
 `NonogramGame` tracks `move_history` (positions + checkpoints) and optional `timeMs`.
+
+### Solver Benchmarks (`src/lib/solver-benchmark.ts`)
+
+- Defines reusable benchmark cases and solver callback registrations.
+- Measures wall-clock time, status counts, and averaged `NonogramSolveMetrics` fields.
+- `src/lib/solver.bench.ts` registers the current solver with Vitest's server project; add future solver callbacks to the local `solvers` list.
+- Run with `bun run benchmark`. Vitest sampling is bounded per case because repeated Z3 WASM allocations can exhaust the module heap.
+
+### Entropy Generator (`src/lib/generator.ts`)
+
+- `generateEntropyNonogram()` chooses a square size from 10 through 50 and returns the generated solution, derived clues, fill ratio, and normalized binary entropy.
+- Cell density is sampled from entropy-weighted candidates, favoring balanced patterns while retaining randomness.
+- The generated solution is column-major (`solution[x][y]`) to match the solver's cell representation; the create page keeps it hidden from the playable grid.
 
 ### Settings & Storage (`src/lib/storable.ts`)
 
@@ -177,7 +197,7 @@ Update `AGENTS.md` whenever significant changes are made to the codebase — e.g
 
 ## Current State / TODOs
 
-- Main page (`+page.svelte`) uses a hardcoded sample nonogram (`[[],[],[5],[1],[],[]]` / `[[1]...]`). No puzzle creation or sharing UI yet.
+- Main page (`+page.svelte`) uses a hardcoded sample nonogram (`[[],[],[5],[1],[],[]]` / `[[1]...]`). Puzzle sharing is not yet implemented; `/create` generates playable random puzzles.
 - Win detection / solved check is stubbed (see TODOs in `+page.svelte`).
 - Error messaging for `'unsat'` uses `alert()` (placeholder).
 - COOP/COEP isolation headers for Z3/`SharedArrayBuffer` are set via Vite middleware in dev and via `netlify.toml` on Netlify; the adapter-node production server (Docker) does not yet set them.
